@@ -10,7 +10,7 @@ import {
   useMap,
 } from "react-leaflet";
 import styled from "styled-components";
-import { useState, useRef, useEffect } from "react";
+import { useState, createRef, useEffect, useRef } from "react";
 import Form from "./components/Form";
 import GeoData from "./MA_rail_lines.json";
 
@@ -24,8 +24,10 @@ export default function App() {
   const [activePopup, setActivePopup] = useState(null);
 
   useEffect(() => {
-
-  }, [activePopup])
+    if (geojsonRef.current) {
+      geojsonRef.current.clearLayers().addData(geoData);
+    }
+  }, [geoData]);
   
   function handleClick(e, layer) {
     layer.setStyle({ color: 'red'});
@@ -41,30 +43,35 @@ export default function App() {
     });
 
     layer.on('click', (e) => {
+      // console.log('line.properties.OBJECTIDasd', line.properties.OBJECTID);
       const popupCoordinateIndex = Math.floor(line.geometry.coordinates.length / 2);
-      console.log('line.properties.OBJECTIDasd', line.properties.OBJECTID);
-      setActivePopup({
-        id: line.properties.OBJECTID,
-        name: line.properties.OBJECTID,
-        position: line.geometry.coordinates[popupCoordinateIndex].reverse(),
-      });
-      layer.remove();
+      if (activePopup === null) {
+        //|| activePopup?.id === line.properties.OBJECTID
+        setActivePopup({
+          id: line.properties.OBJECTID,
+          name: line.properties.OBJECTID,
+          position: line.geometry.coordinates[popupCoordinateIndex].reverse(),
+        });
+      };
+      console.log({ layer });
       handleClick(e, layer);
     });
   }
 
   function changeName (newName) {
-    console.log('activePopup.idss', activePopup.id);
-    console.log('geojsonRef.current.children', geojsonRef.current.children);
-    // const layersArr = Object.entries(geojsonRef.current._layers).map(([k, v]) => v);
-    const updatedGeoData = geoData.map((item) => {
-      if (item.properties.OBJECTID === activePopup.id) {
-        console.log('changed', { ...item, properties: { ...item.properties, OBJECTID: newName }});
-        return { ...item, properties: { ...item.properties, OBJECTID: newName }};
+    const updatedGeoData = geoData.map((line) => {
+      if (line.properties.OBJECTID === activePopup.id) {
+        const popupCoordinateIndex = Math.floor(line.geometry.coordinates.length / 2);
+        console.log('changed', { ...line, properties: { ...line.properties, OBJECTID: newName }});
+        setActivePopup({
+          id: newName,
+          name: newName,
+          position: line.geometry.coordinates[popupCoordinateIndex].reverse(),
+        });
+        return { ...line, properties: { ...line.properties, OBJECTID: newName }};
       }
-      return item;
+      return line;
     });
-
     setGeoData(updatedGeoData);
   };
   console.log(activePopup?.id || 0);
@@ -86,19 +93,10 @@ export default function App() {
           data={geoData}
           style={{ weight: 6 }}
         />
-        {/* {geoData.map((item) => (
-          <GeoJSON 
-            onEachFeature={onEachLine}
-            attribution="&copy; credits due..."
-            data={item}
-            style={{ weight: 6 }}
-          />
-        ))} */}
         {activePopup && (
           <StyledPopup 
             position={activePopup.position} 
             autoClose={false}
-            popupclose={() => setActivePopup(null)}
           >
             <Form
               popupId={activePopup.id} 

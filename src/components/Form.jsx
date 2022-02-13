@@ -18,9 +18,10 @@ function Form(props) {
 
   useEffect(() => {
     setName(props.name);
-  }, [props.name]);
+  }, [props.name, props.popupId]);
 
   function handleSubmit(e) {
+    console.log(e);
     e.preventDefault();
     props.changeName(name);
   }
@@ -33,14 +34,13 @@ function Form(props) {
     <StyledForm onSubmit={handleSubmit}>
       <input
         type="text"
-        id="new-todo-input"
-        className="input input__lg"
+        id="new-input"
         name="text"
         autoComplete="off"
         value={name}
         onChange={handleChange}
       />
-      <button type="submit" className="btn btn__primary btn__lg">
+      <button type="submit" className="btn">
         Save
       </button>
     </StyledForm>
