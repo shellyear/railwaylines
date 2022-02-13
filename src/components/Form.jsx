@@ -21,7 +21,6 @@ function Form(props) {
   }, [props.name, props.popupId]);
 
   function handleSubmit(e) {
-    console.log(e);
     e.preventDefault();
     props.changeName(name);
   }

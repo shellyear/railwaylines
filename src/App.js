@@ -43,17 +43,14 @@ export default function App() {
     });
 
     layer.on('click', (e) => {
-      // console.log('line.properties.OBJECTIDasd', line.properties.OBJECTID);
       const popupCoordinateIndex = Math.floor(line.geometry.coordinates.length / 2);
       if (activePopup === null) {
-        //|| activePopup?.id === line.properties.OBJECTID
         setActivePopup({
           id: line.properties.OBJECTID,
           name: line.properties.OBJECTID,
-          position: line.geometry.coordinates[popupCoordinateIndex].reverse(),
+          position: line.geometry.coordinates[popupCoordinateIndex].slice().reverse(),
         });
       };
-      console.log({ layer });
       handleClick(e, layer);
     });
   }
@@ -62,11 +59,10 @@ export default function App() {
     const updatedGeoData = geoData.map((line) => {
       if (line.properties.OBJECTID === activePopup.id) {
         const popupCoordinateIndex = Math.floor(line.geometry.coordinates.length / 2);
-        console.log('changed', { ...line, properties: { ...line.properties, OBJECTID: newName }});
         setActivePopup({
           id: newName,
           name: newName,
-          position: line.geometry.coordinates[popupCoordinateIndex].reverse(),
+          position: line.geometry.coordinates[popupCoordinateIndex].slice().reverse(),
         });
         return { ...line, properties: { ...line.properties, OBJECTID: newName }};
       }
@@ -74,7 +70,7 @@ export default function App() {
     });
     setGeoData(updatedGeoData);
   };
-  console.log(activePopup?.id || 0);
+  
   return (
     <div className="App">
       <MapContainer
@@ -94,16 +90,16 @@ export default function App() {
           style={{ weight: 6 }}
         />
         {activePopup && (
-          <StyledPopup 
+          <Popup
+            popupId={activePopup.id}  
             position={activePopup.position} 
-            autoClose={false}
           >
             <Form
               popupId={activePopup.id} 
               changeName={changeName}
               name={activePopup.name} 
             />
-          </StyledPopup> 
+          </Popup> 
         )}
       </MapContainer>
     </div>
