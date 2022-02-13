@@ -1,0 +1,2 @@
+schopnost pridavat liny do segmentu, muze byt nekolik segmentu,
+schopnost menit nazev linu
